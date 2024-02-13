@@ -3,19 +3,27 @@ from google.cloud import storage
 from dotenv import load_dotenv
 import datetime
 import os
+from langchain.pydantic_v1 import BaseModel, Field
+from langchain.tools import BaseTool, StructuredTool, tool
+import uuid
+import base64
 
 load_dotenv()
 
 
-def upload_blob(bucket_name, source_file_name, destination_blob_name):
-    """Uploads a file to the bucket."""
+def upload_blob(bucket_name, base64_data, destination_blob_name):
+    """Uploads base64 encoded data to the bucket."""
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
-    blob.upload_from_filename(source_file_name)
+    # Decode the base64 string to bytes
+    image_data = base64.b64decode(base64_data)
 
-    print(f"File {source_file_name} uploaded to {destination_blob_name}.")
+    # Use upload_from_string to upload the data
+    blob.upload_from_string(image_data)
+
+    print(f"Data uploaded to {destination_blob_name}.")
 
 
 def generate_signed_url(bucket_name, blob_name):
@@ -32,7 +40,7 @@ def generate_signed_url(bucket_name, blob_name):
     return url
 
 
-def reverse_image_search(image_url):
+def reverse_image_search_api(image_url):
     print(image_url)
     api_key = os.getenv("SERPAPI_API_KEY")
 
@@ -44,18 +52,23 @@ def reverse_image_search(image_url):
     return data
 
 
-# TESTING THE FUNCTION
-bucket_name = "beacon-reverse-image-api"
-source_file_name = "./car.png"
-destination_blob_name = "car.png"
+@tool("reverse-image-search")
+def reverse_image_search(base64_image: str) -> dict:
+    """Reverse Google image search."""
+    file_id = str(uuid.uuid4())
+    bucket_name = "beacon-reverse-image-api"
+    upload_blob(bucket_name, base64_image, file_id)
 
-# Upload the image
-upload_blob(bucket_name, source_file_name, destination_blob_name)
+    image_url = f"https://storage.googleapis.com/{bucket_name}/{file_id}"
+    search_results = reverse_image_search_api(image_url)
 
-# Generate and print the authenticated URL for the uploaded image
-image_url = f"https://storage.googleapis.com/{bucket_name}/{destination_blob_name}"
+    return search_results
 
-# Run the reverse image search
-search_results = reverse_image_search(image_url)
 
-print(search_results)
+# image_path = "./car.png"
+# with open(image_path, "rb") as image_file:
+#     image_data = image_file.read()
+# image_base64 = base64.b64encode(image_data)
+# image_base64_str = image_base64.decode("utf-8")
+
+# print(reverse_image_search(image_base64_str))
