@@ -5,9 +5,6 @@ import serpapi
 from openai import OpenAI
 import base64
 
-
-
-
 def upload_blob(bucket_name, base64_data, destination_blob_name):
     """Uploads base64 encoded data to the bucket."""
     storage_client = storage.Client()
@@ -71,3 +68,45 @@ def convert_to_base64(image_path: str):
     image_base64 = base64.b64encode(image_data)
     image_base64_str = image_base64.decode("utf-8")
     return image_base64_str
+
+class BucketHandler:
+    def __init__(self, client_id):
+        self.bucket_name = "beacon_demo"
+        self.storage_client = storage.Client()
+        self.bucket = self.storage_client.bucket(self.bucket_name)
+        self.client_id = client_id
+        
+    def upload_blob(self, base64_data):
+        """Uploads base64 encoded data to the bucket."""
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(self.bucket_name)
+        blob = bucket.blob(self.client_id)
+
+        # Decode the base64 string to bytes
+        image_data = base64.b64decode(base64_data)
+
+        # Use upload_from_string to upload the data
+        blob.upload_from_string(image_data)
+
+        print(f"Data uploaded to {self.client_id}.")
+        
+    def google_lens_search(self, base64_image: str):
+        """Reverse Google image search."""
+        api_key = os.getenv("SERPAPI_API_KEY")
+        file_id = self.client_id
+        bucket_name = "beacon_demo"
+        self.upload_blob(base64_image)
+
+        image_url = f"https://storage.googleapis.com/{bucket_name}/{file_id}"
+
+        params = {
+            "engine": "google_lens",
+            "url": image_url,
+            "api_key": os.getenv("SERPAPI_API_KEY"),
+        }
+
+        search = serpapi.search(params)
+        visual_matches = search["visual_matches"]
+        titles = [match["title"] for match in visual_matches if "title" in match]
+        res = identify_object(titles)
+        return res
