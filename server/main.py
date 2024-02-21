@@ -1,7 +1,11 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, Union
 from dotenv import load_dotenv
 load_dotenv()
+import json
+
+from segment_demo import segment_point, segment_text
 
 class ConnectionManager:
     def __init__(self):
@@ -24,18 +28,47 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to more restrictive origins as needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 def read_root():
     return "Welcome to the backend server for Beacon's live demo"
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] = None):
+    if client_id is None:
+        client_id = websocket.query_params.get("client_id")
+    
+    if client_id is None:
+        await websocket.close(code=4001)  
+        return
+    
+    await manager.connect(websocket, client_id)
     try:
         while True:
             data = await websocket.receive_json()
-            await manager.send_personal_message(data, websocket)
-            
+            event = data['event']
+            try:
+                match event:
+                    case 'segment_point':
+                        masks, scores = segment_point(data['image'], data['point'])
+                        print(type(masks), type(scores))
+                        message = json.dumps({'masks': masks, 'scores': scores})
+                        print("Success! Sending message...")
+                        await manager.send_personal_message({'masks': masks, 'scores': scores}, websocket)
+                    case 'segment_text':
+                        masks, scores = segment_text(data['image'], data['text'])
+                        await manager.send_personal_message({'masks': masks, 'scores': scores}, websocket)
+            except Exception as e:
+                print(f"Error: {e}")
+                await manager.send_personal_message({'error': str(e)}, websocket)      
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        print("Disconnecting...")                   
+        manager.disconnect(client_id)
         
