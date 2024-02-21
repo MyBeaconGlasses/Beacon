@@ -57,14 +57,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
             try:
                 match event:
                     case 'segment_point':
-                        masks, scores = segment_point(data['image'], data['point'])
-                        print(type(masks), type(scores))
-                        message = json.dumps({'masks': masks, 'scores': scores})
-                        print("Success! Sending message...")
-                        await manager.send_personal_message({'masks': masks, 'scores': scores}, websocket)
+                        mask, score = segment_point(data['image'], data['point'])
+                        await manager.send_personal_message({'mask': mask, 'score': str(score)}, websocket)
                     case 'segment_text':
-                        masks, scores = segment_text(data['image'], data['text'])
-                        await manager.send_personal_message({'masks': masks, 'scores': scores}, websocket)
+                        mask, box = segment_text(data['image'], data['text'])
+                        await manager.send_personal_message({'mask': mask, 'box': box}, websocket)
             except Exception as e:
                 print(f"Error: {e}")
                 await manager.send_personal_message({'error': str(e)}, websocket)      

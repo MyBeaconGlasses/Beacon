@@ -76,8 +76,22 @@ def segment_point(base64_image: str, point_coords: List):
         point_labels=input_label,
         multimask_output=True,
     )
-   
-    return masks.tolist(), scores.tolist()
+    
+    best_mask = None
+    best_score = 0
+    for i, (mask, score) in enumerate(zip(masks, scores)):
+        if score > best_score:
+            best_mask = mask
+            best_score = score
+    # Resize best_mask to be 1/2 the size of the original image
+    best_mask = np.uint8(best_mask * 255)
+    # Convert best mask to image then base64
+    best_mask = Image.fromarray(best_mask)
+    buffered = BytesIO()
+    best_mask.save(buffered, format="JPEG")
+    best_mask = base64.b64encode(buffered.getvalue())
+    best_mask = best_mask.decode("utf-8")
+    return best_mask, best_score
     
 def segment_text(base64_image, text_prompt):
     """
@@ -100,4 +114,18 @@ def segment_text(base64_image, text_prompt):
     # Convert masks to numpy arrays for easier handling
     masks_np = [mask.squeeze().cpu().numpy() for mask in masks]
     
-    return masks_np, boxes
+    mask = masks_np[0]
+    box = boxes[0]
+    
+    # Convert mask to image then base64
+    mask = np.uint8(mask * 255)
+    mask = Image.fromarray(mask)
+    buffered = BytesIO()
+    mask.save(buffered, format="JPEG")
+    mask = base64.b64encode(buffered.getvalue())
+    mask = mask.decode("utf-8")
+    
+    # Convert box tensor to list
+    box = box.tolist()
+    
+    return mask, box
