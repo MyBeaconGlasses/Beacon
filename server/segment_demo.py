@@ -10,8 +10,21 @@ from segment_anything import sam_model_registry, SamPredictor
 from lang_sam import LangSAM
 import matplotlib.pyplot as plt
 
+# Initialize the LangSAM model
+model = LangSAM(sam_type="vit_b")
+sam_checkpoint = "sam_vit_b_01ec64.pth"
+model_type = "vit_b"
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
+sam.to(device=device)
+predictor = SamPredictor(sam)
+
+
 def np_array_to_base64(array):
     return base64.b64encode(array).decode("utf-8")
+
 
 def decode_base64_to_image(base64_str):
     """
@@ -20,6 +33,7 @@ def decode_base64_to_image(base64_str):
     image_data = base64.b64decode(base64_str)
     image = Image.open(BytesIO(image_data))
     return image
+
 
 def base64_to_numpy(base64_str):
     """
@@ -31,12 +45,28 @@ def base64_to_numpy(base64_str):
     pil_image = decode_base64_to_image(base64_str)
     return np.array(pil_image)
 
-def show_points(coords, labels, ax, marker_size=375):
-    pos_points = coords[labels==1]
-    neg_points = coords[labels==0]
-    ax.scatter(pos_points[:, 0], pos_points[:, 1], color='green', marker='*', s=marker_size, edgecolor='white', linewidth=1.25)
-    ax.scatter(neg_points[:, 0], neg_points[:, 1], color='red', marker='*', s=marker_size, edgecolor='white', linewidth=1.25)   
 
+def show_points(coords, labels, ax, marker_size=375):
+    pos_points = coords[labels == 1]
+    neg_points = coords[labels == 0]
+    ax.scatter(
+        pos_points[:, 0],
+        pos_points[:, 1],
+        color="green",
+        marker="*",
+        s=marker_size,
+        edgecolor="white",
+        linewidth=1.25,
+    )
+    ax.scatter(
+        neg_points[:, 0],
+        neg_points[:, 1],
+        color="red",
+        marker="*",
+        s=marker_size,
+        edgecolor="white",
+        linewidth=1.25,
+    )
 
 
 def segment_point(base64_image: str, point_coords: List):
@@ -49,20 +79,10 @@ def segment_point(base64_image: str, point_coords: List):
     :return: Predicted masks
     """
     point_coords = np.array([point_coords])
-    sam_checkpoint = "sam_vit_b_01ec64.pth"
-    model_type = "vit_b"
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
-    sam.to(device=device)
-
-    predictor = SamPredictor(sam)
-    
-    
     # Convert base64 image to numpy array
     image_np = base64_to_numpy(base64_image)
-    
+
     # Ensure image is in RGB format if it's not already
     if image_np.shape[-1] == 4:  # Assuming the presence of an alpha channel
         image_np = cv2.cvtColor(image_np, cv2.COLOR_BGRA2RGB)
@@ -76,7 +96,7 @@ def segment_point(base64_image: str, point_coords: List):
         point_labels=input_label,
         multimask_output=True,
     )
-    
+
     best_mask = None
     best_score = 0
     for i, (mask, score) in enumerate(zip(masks, scores)):
@@ -92,7 +112,8 @@ def segment_point(base64_image: str, point_coords: List):
     best_mask = base64.b64encode(buffered.getvalue())
     best_mask = best_mask.decode("utf-8")
     return best_mask, best_score
-    
+
+
 def segment_text(base64_image, text_prompt):
     """
     Decodes a base64 encoded image, uses LangSAM model to predict masks, bounding boxes,
@@ -102,21 +123,19 @@ def segment_text(base64_image, text_prompt):
     :param text_prompt: Text prompt for the LangSAM model.
     :return: masks, boxes, phrases, logits
     """
-    # Decode the base64 string to a PIL Image
-    image_pil = decode_base64_to_image(base64_image)
-    
-    # Initialize the LangSAM model
-    model = LangSAM(sam_type='vit_b')
-    
+    # Convert base64 image to numpy array
+    image_np = base64_to_numpy(base64_image)
+    image_pil = Image.fromarray(image_np)
+
     # Predict masks, boxes, phrases, and logits using the model
     masks, boxes, phrases, logits = model.predict(image_pil, text_prompt)
-    
+
     # Convert masks to numpy arrays for easier handling
     masks_np = [mask.squeeze().cpu().numpy() for mask in masks]
-    
+
     mask = masks_np[0]
     box = boxes[0]
-    
+
     # Convert mask to image then base64
     mask = np.uint8(mask * 255)
     mask = Image.fromarray(mask)
@@ -124,8 +143,8 @@ def segment_text(base64_image, text_prompt):
     mask.save(buffered, format="JPEG")
     mask = base64.b64encode(buffered.getvalue())
     mask = mask.decode("utf-8")
-    
+
     # Convert box tensor to list
     box = box.tolist()
-    
+
     return mask, box
