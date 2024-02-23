@@ -9,6 +9,7 @@ from typing import List
 from segment_anything import sam_model_registry, SamPredictor
 from lang_sam import LangSAM
 import matplotlib.pyplot as plt
+from utils import np_array_to_base64, decode_base64_to_image, base64_to_numpy
 
 # Initialize the LangSAM model
 model = LangSAM(sam_type="vit_b")
@@ -20,53 +21,6 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
 sam.to(device=device)
 predictor = SamPredictor(sam)
-
-
-def np_array_to_base64(array):
-    return base64.b64encode(array).decode("utf-8")
-
-
-def decode_base64_to_image(base64_str):
-    """
-    Decode a base64 string to a PIL Image object.
-    """
-    image_data = base64.b64decode(base64_str)
-    image = Image.open(BytesIO(image_data))
-    return image
-
-
-def base64_to_numpy(base64_str):
-    """
-    Convert a base64 string to a numpy array.
-    """
-    # Check for the presence of a base64 header
-    if "base64" in base64_str:
-        base64_str = base64_str.split(",")[1]
-    pil_image = decode_base64_to_image(base64_str)
-    return np.array(pil_image)
-
-
-def show_points(coords, labels, ax, marker_size=375):
-    pos_points = coords[labels == 1]
-    neg_points = coords[labels == 0]
-    ax.scatter(
-        pos_points[:, 0],
-        pos_points[:, 1],
-        color="green",
-        marker="*",
-        s=marker_size,
-        edgecolor="white",
-        linewidth=1.25,
-    )
-    ax.scatter(
-        neg_points[:, 0],
-        neg_points[:, 1],
-        color="red",
-        marker="*",
-        s=marker_size,
-        edgecolor="white",
-        linewidth=1.25,
-    )
 
 
 def segment_point(base64_image: str, point_coords: List):

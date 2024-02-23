@@ -92,20 +92,24 @@ def find_wind_speed(city: str) -> str:
     return get_info(city)["current"]["wind_mph"]
 
 
-# Define a list of tools
-tools = [find_weather_condition, find_temp, find_humidity, find_precip, find_wind_speed]
-
 @tool
-async def process_weather_agent(input: str) -> str:
-    """Asks the weather agent to process the input and return the output. The agent is able to find the current weather condition, temperature, humidity, precipitation, and wind speed of the city the user is in.
+def process_weather_agent(input: str) -> str:
+    """Asks the weather agent to process the input and return the output.
+    The agent is able to find the current weather condition, temperature, humidity, precipitation, and wind speed of the city the user is in.
 
     Arg:
         input (str): The city of the user.
 
     Returns: A string of the current weather condition, temperature, humidity, precipitation, and wind speed of the city the user is in.
     """
+    # Define a list of tools
+    tools = [
+        find_weather_condition,
+        find_temp,
+        find_humidity,
+        find_precip,
+        find_wind_speed,
+    ]
     agent = Agent(tools)
-    output = await agent.invoke(input)
+    output = agent.invoke(input)
     return output
-
-#print(process_weather_agent('What is the humidity in New York?')) 

@@ -2,10 +2,13 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, Union
 from dotenv import load_dotenv
+
 load_dotenv()
 import json
 
 from segment_demo import segment_point, segment_text
+from audio_utils import generate_stream_input, base64_to_text
+
 
 class ConnectionManager:
     def __init__(self):
@@ -24,7 +27,8 @@ class ConnectionManager:
     async def broadcast(self, message: str):
         for connection in self.active_connections.values():
             await connection.send_text(message)
-            
+
+
 manager = ConnectionManager()
 
 app = FastAPI()
@@ -36,36 +40,46 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def read_root():
     return "Welcome to the backend server for Beacon's live demo"
+
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] = None):
     if client_id is None:
         client_id = websocket.query_params.get("client_id")
-    
+
     if client_id is None:
-        await websocket.close(code=4001)  
+        await websocket.close(code=4001)
         return
-    
+
     await manager.connect(websocket, client_id)
     try:
         while True:
             data = await websocket.receive_json()
-            event = data['event']
+            event = data["event"]
             try:
                 match event:
-                    case 'segment_point':
-                        mask, score = segment_point(data['image'], data['point'])
-                        await manager.send_personal_message({'mask': mask, 'score': str(score)}, websocket)
-                    case 'segment_text':
-                        mask, box = segment_text(data['image'], data['text'])
-                        await manager.send_personal_message({'mask': mask, 'box': box}, websocket)
+                    case "segment_point":
+                        mask, score = segment_point(data["image"], data["point"])
+                        await manager.send_personal_message(
+                            {"mask": mask, "score": str(score)}, websocket
+                        )
+                    case "segment_text":
+                        mask, box = segment_text(data["image"], data["text"])
+                        await manager.send_personal_message(
+                            {"mask": mask, "box": box}, websocket
+                        )
+                    case "audio_chat":
+                        transcript = await base64_to_text(data["audio"])
+                        await manager.send_personal_message(
+                            {"transcript": transcript}, websocket
+                        )
             except Exception as e:
                 print(f"Error: {e}")
-                await manager.send_personal_message({'error': str(e)}, websocket)      
+                await manager.send_personal_message({"error": str(e)}, websocket)
     except WebSocketDisconnect:
-        print("Disconnecting...")                   
+        print("Disconnecting...")
         manager.disconnect(client_id)
-        

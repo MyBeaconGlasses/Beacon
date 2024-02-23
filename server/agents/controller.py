@@ -1,8 +1,6 @@
 from langchain import hub
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_openai import ChatOpenAI
-from dotenv import load_dotenv
-load_dotenv()
 
 new_prompt = """You are a helpful assistant.
 Respond in the language of the user.
@@ -13,17 +11,15 @@ Your output will be transcribed to speech and played to the user. So, when respo
 4. If technical terms or jargon are unavoidable, provide a brief spoken explanation.
 5. Articulate numbers as they would be spoken. For example, use 'two point two' instead of '2.2'.
 6. Avoid complex punctuation. Use simple sentence structures conducive to spoken language.
+7. Keep your response concise and natural. Try to keep each response under two sentences.
 
 Remember, your goal is to provide responses that are clear, concise, and easily understood when spoken aloud.
 """
 
-class Controller:
-    def __init__(self):
-        """tools should be list of functions"""
-        tools = [
-            
-        ]
 
+class Controller:
+    def __init__(self, tools):
+        """tools should be list of functions"""
         prompt = hub.pull("hwchase17/openai-tools-agent")
         prompt.messages[0].prompt.template = new_prompt
         model = ChatOpenAI(model="gpt-4-turbo-preview", temperature=0, streaming=True)
@@ -49,7 +45,9 @@ class Controller:
                 full_message += f"Assistant: {i}\n"
         full_message += f"User: {message}\n"
         async for event in self.executor.astream_events(
-            {"input": full_message, "history": self.history},
+            {
+                "input": full_message,
+            },
             version="v1",
         ):
             kind = event["event"]
@@ -58,9 +56,6 @@ class Controller:
                 if content:
                     yield content
             elif kind == "on_chain_end":
-                if event["name"] == "Terry":
+                if event["name"] == "Assistant":
                     output = event["data"].get("output")["output"]
-        print(f"Controller: invoke: message: {message}, output: {output}")
-        self.history.append([message, output])
-        
-        
+        # self.history.append([message, output])

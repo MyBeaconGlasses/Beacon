@@ -36,8 +36,9 @@ google_trends = GoogleTrendsQueryRun(api_wrapper=GoogleTrendsAPIWrapper())
 # Define a list of tools
 tools = [google_finance, google_jobs, google_scholar, google_search, google_trends]
 
+
 @tool
-async def process_google_agent(input: str) -> str:
+def process_google_agent(input: str) -> str:
     """Asks the google agent to process the input and return the output.
     The agent is able to answer questions about:
     - Finance
@@ -52,8 +53,8 @@ async def process_google_agent(input: str) -> str:
     Returns: A string of the response of the query.
     """
     agent = Agent(tools)
-    output = await agent.invoke(input)
+    output = agent.invoke(input)
     return output
 
-#print(process_google_agent('What is the stock price of Apple?'))
 
+# print(process_google_agent("What is the price of Trader Joe's hand cream?"))
