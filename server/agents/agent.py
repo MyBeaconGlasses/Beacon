@@ -11,8 +11,8 @@ class Agent:
         agent = create_openai_tools_agent(llm, tools, prompt)
         self.executor = AgentExecutor(agent=agent, tools=tools)
 
-    async def invoke(self, message):
-        response = await self.executor.ainvoke(
+    def invoke(self, message):
+        response = self.executor.invoke(
             {
                 "input": message,
             }
