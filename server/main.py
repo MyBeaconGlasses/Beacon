@@ -7,6 +7,7 @@ load_dotenv()
 import json
 
 from segment_demo import segment_point, segment_text
+from audio_utils import generate_stream_input, base64_to_text
 
 
 class ConnectionManager:
@@ -70,6 +71,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
                         mask, box = segment_text(data["image"], data["text"])
                         await manager.send_personal_message(
                             {"mask": mask, "box": box}, websocket
+                        )
+                    case "audio_chat":
+                        transcript = await base64_to_text(data["audio"])
+                        await manager.send_personal_message(
+                            {"transcript": transcript}, websocket
                         )
             except Exception as e:
                 print(f"Error: {e}")

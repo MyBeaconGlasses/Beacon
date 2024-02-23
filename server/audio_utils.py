@@ -5,6 +5,11 @@ import websockets
 from websockets.sync.client import connect
 import json
 import subprocess
+import tempfile
+from openai import AsyncOpenAI
+import io
+
+client = AsyncOpenAI()
 
 elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
 voice = {
@@ -28,6 +33,26 @@ def is_installed(lib_name):
     if lib is None:
         return False
     return True
+
+
+async def base64_to_text(base64_audio):
+    if "base64" in base64_audio:
+        base64_audio = base64_audio.split(",")[1]
+
+    # Decode the base64 audio to binary
+    audio_data = base64.b64decode(base64_audio)
+
+    # Use BytesIO to create an in-memory file-like object
+    audio_stream = io.BytesIO(audio_data)
+    audio_stream.name = "audio.wav"
+
+    # Now that the audio is in a file-like object, transcribe it
+    # Note: This assumes the transcription client supports file-like objects.
+    transcript = await client.audio.transcriptions.create(
+        model="whisper-1", file=audio_stream, response_format="text"
+    )
+
+    return transcript
 
 
 async def text_chunker(chunks):
