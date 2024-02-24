@@ -4,14 +4,15 @@ from langchain_openai import ChatOpenAI
 
 new_prompt = """You are a helpful assistant.
 Respond in the language of the user.
+"""
+
+prompt= """
 Your output will be transcribed to speech and played to the user. So, when responding:
 1. Use plain, conversational language.
 2. Avoid markdown, special characters, or symbols.
 3. Expand abbreviations and acronyms into their full spoken form. For example, use 'miles per hour' instead of 'mph'.
-4. If technical terms or jargon are unavoidable, provide a brief spoken explanation.
-5. Articulate numbers as they would be spoken. For example, use 'two point two' instead of '2.2'.
-6. Avoid complex punctuation. Use simple sentence structures conducive to spoken language.
-7. Keep your response concise and natural. Try to keep each response under two sentences.
+4. Articulate numbers as they would be spoken. For example, use 'two point two' instead of '2.2'.
+5. Keep your response concise and natural. Try to keep each response under two sentences.
 
 Remember, your goal is to provide responses that are clear, concise, and easily understood when spoken aloud.
 """
@@ -37,7 +38,7 @@ class Controller:
 
     async def invoke(self, message):
         output = ""
-        full_message = "History: \n\n"
+        full_message = f"{prompt} \n\n History: \n\n"
         for index, i in enumerate(self.history):
             if index % 2 == 0:
                 full_message += f"User: {i}\n"

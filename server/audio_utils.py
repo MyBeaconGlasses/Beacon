@@ -14,9 +14,9 @@ client = AsyncOpenAI()
 elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
 voice = {
     "voice_id": "EXAVITQu4vr4xnSDxMaL",
-    "name": "Bella",
+    "name": "Sarah",
     "settings": {
-        "stability": 0.72,
+        "stability": 0.3,
         "similarity_boost": 0.2,
         "style": 0.0,
         "use_speaker_boost": False,
@@ -98,15 +98,22 @@ async def generate_stream_input(first_text_chunk, text_generator):
         # Send the first text chunk immediately
         first_data = dict(text=first_text_chunk, try_trigger_generation=True)
         websocket.send(json.dumps(first_data))
+        yield {
+            "text": first_text_chunk,
+        }
 
         # Stream text chunks and receive audio
         async for text_chunk in text_chunker(text_generator):
             data = dict(text=text_chunk, try_trigger_generation=True)
+            yield {"text": text_chunk}
             websocket.send(json.dumps(data))
             try:
                 data = json.loads(websocket.recv(1e-4))
                 if data["audio"]:
-                    yield base64.b64decode(data["audio"])  # type: ignore
+                    yield {
+                        "audio": data["audio"],
+                    }
+                    
             except TimeoutError:
                 pass
 
@@ -116,7 +123,7 @@ async def generate_stream_input(first_text_chunk, text_generator):
             try:
                 data = json.loads(websocket.recv())
                 if data["audio"]:
-                    yield base64.b64decode(data["audio"])  # type: ignore
+                    yield {"audio": data["audio"]}  # type: ignore
             except websockets.exceptions.ConnectionClosed:
                 break
 

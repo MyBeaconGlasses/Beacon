@@ -5,6 +5,7 @@ import uuid
 from typing import Dict, Union
 from dotenv import load_dotenv
 load_dotenv()
+import base64
 
 from segment_demo import segment_point, segment_text
 from audio_utils import generate_stream_input, base64_to_text
@@ -25,9 +26,6 @@ class ConnectionManager:
 
     async def send_personal_message(self, data: dict, websocket: WebSocket):
         await websocket.send_json(data)
-
-    async def send_personal_bytes(self, data: bytes, websocket: WebSocket):
-        await websocket.send_bytes(data)
 
     async def broadcast(self, message: str):
         for connection in self.active_connections.values():
@@ -64,7 +62,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
 
     async def update_callback(msg):
         await manager.send_personal_message({"update": msg}, websocket)
-
+        
     try:
         while True:
             data = await websocket.receive_json()
@@ -86,9 +84,14 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
                         await manager.send_personal_message(
                             {"transcript": transcript}, websocket
                         )
-                        audio_stream = await process_agent(transcript)
+                        audio_stream = await process_agent(transcript, update_callback)
                         async for chunk in audio_stream:
-                            await manager.send_personal_bytes(chunk, websocket)
+                            await manager.send_personal_message(
+                                chunk, websocket
+                            )
+                        await manager.send_personal_message(
+                            {"end": True}, websocket
+                        )
                     case "visual_chat":
                         transcript = await base64_to_text(data["audio"])
                         uuid_str = str(uuid.uuid4())
@@ -101,8 +104,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
                             update_callback,
                         )
                         async for chunk in audio_stream:
-                            await manager.send_personal_bytes(chunk, websocket)
-
+                            await manager.send_personal_message(
+                                chunk, websocket
+                            )
             except Exception as e:
                 print(f"Error: {e}")
                 traceback.print_exc()

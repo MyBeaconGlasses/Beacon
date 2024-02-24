@@ -83,7 +83,6 @@ def add_padding_and_display(image, box, padding_ratio=0.1):
     # Convert to base64
     buffered = BytesIO()
     # Save as temp file
-    cropped_image.save("cropped_image.jpg")
     cropped_image.save(buffered, format="JPEG")
     cropped_image = base64.b64encode(buffered.getvalue())
     cropped_image = cropped_image.decode("utf-8")
@@ -91,6 +90,48 @@ def add_padding_and_display(image, box, padding_ratio=0.1):
     
     return cropped_image
 
+def crop_image_from_mask(image, mask):
+    # Convert the mask to uint8 format
+    mask_uint8 = (mask * 255).astype(np.uint8)
+
+    # Find contours in the mask
+    contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Image dimensions
+    img_height, img_width = image.shape[:2]
+
+    for contour in contours:
+        # Compute the bounding box for the contour
+        x, y, w, h = cv2.boundingRect(contour)
+        
+        # Calculate padding (10% of the bounding box size)
+        pad_w = int(0.1 * w)
+        pad_h = int(0.1 * h)
+        
+        # Apply padding to the bounding box coordinates
+        # Make sure the coordinates do not go out of image bounds
+        x_pad = max(x - pad_w, 0)
+        y_pad = max(y - pad_h, 0)
+        w_pad = w + 2 * pad_w
+        h_pad = h + 2 * pad_h
+        
+        # Adjust width and height to not exceed image bounds
+        if x_pad + w_pad > img_width:
+            w_pad = img_width - x_pad
+        if y_pad + h_pad > img_height:
+            h_pad = img_height - y_pad
+        
+        # Extract the padded area
+        extracted_image_with_padding = image[y_pad:y_pad+h_pad, x_pad:x_pad+w_pad]
+        
+        # Convert to base64
+        buffered = BytesIO()
+        extracted_image_with_padding = Image.fromarray(extracted_image_with_padding)
+        extracted_image_with_padding.save(buffered, format="JPEG")
+        extracted_image_with_padding = base64.b64encode(buffered.getvalue())
+        extracted_image_with_padding = extracted_image_with_padding.decode("utf-8")
+        
+        return extracted_image_with_padding
 
 def segment_point(base64_image: str, point_coords: List):
     """
@@ -114,7 +155,7 @@ def segment_point(base64_image: str, point_coords: List):
     predictor.set_image(image_np)
     input_label = np.array([1])
 
-    masks, scores, box = predictor.predict(
+    masks, scores, _ = predictor.predict(
         point_coords=point_coords,
         point_labels=input_label,
         multimask_output=True,
@@ -127,6 +168,11 @@ def segment_point(base64_image: str, point_coords: List):
             best_mask = mask
             best_score = score
     best_mask = np.uint8(best_mask * 255)
+    
+    image = crop_image_from_mask(image_np, best_mask)
+
+    
+    
     # Convert best mask to image then base64
     best_mask = Image.fromarray(best_mask)
     buffered = BytesIO()
@@ -134,7 +180,7 @@ def segment_point(base64_image: str, point_coords: List):
     best_mask = base64.b64encode(buffered.getvalue())
     best_mask = best_mask.decode("utf-8")
     
-    image = add_padding_and_display(image_np, box)
+
     return best_mask, best_score, image
 
 
