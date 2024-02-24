@@ -1,2 +1,2 @@
-# Vision
+# MyBeacon
 GDSC 2024
