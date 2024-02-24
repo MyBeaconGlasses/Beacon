@@ -1,0 +1,26 @@
+/* navbar.css */
+.navbar {
+    width: 100%;              /* Full width */
+    display: flex;            /* Flex container */
+    justify-content: center;  /* Center children horizontally */
+    align-items: center;      /* Center children vertically */
+    gap: 16px;                /* Space between children */
+    flex-wrap: wrap; /* Allow items to wrap if there's not enough space */
+    font-weight: 500; /* Corrected font weight */
+    color: white;             /* White text color */
+    font-size: 16px;          /* Font size of 16 pixels */
+    padding-top: 8px;         /* Padding top */
+    padding-bottom: 8px;      /* Padding bottom */
+    position: fixed;          /* Fixed position */
+    top: 0;                   /* Stick to the top */
+    left: 0;                  /* Stick to the left */
+    z-index: 10;              /* Stack order */
+  }
+  
+  .navbar-button {
+    background-color: rgba(84, 84, 84, 0.18); /* Semi-transparent grey background */
+    padding: 0.5rem 1rem; /* Y-axis padding 0.5rem, X-axis padding 1rem */
+    max-width: 360px; /* Maximum width of the button */
+    box-shadow: inset 0px 2px 4px 0px rgba(223, 223, 223, 0.17); /* Inner shadow with light grey color */
+  border-radius: 16px; /* Rounded corners with 16px radius */
+    }
