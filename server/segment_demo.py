@@ -1,6 +1,5 @@
 import base64
 import cv2
-import warnings
 import numpy as np
 from PIL import Image
 from io import BytesIO
@@ -21,6 +20,76 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
 sam.to(device=device)
 predictor = SamPredictor(sam)
+
+def calculate_padded_bbox(mask_np, padding_percent=10):
+    """
+    Calculate the bounding box of the mask and add padding.
+    :param mask_np: Numpy array of the mask.
+    :param padding_percent: Percentage of padding to add to each side.
+    :return: A tuple representing the padded bounding box (x_min, y_min, x_max, y_max).
+    """
+    rows = np.any(mask_np, axis=1)
+    cols = np.any(mask_np, axis=0)
+    y_min, y_max = np.where(rows)[0][[0, -1]]
+    x_min, x_max = np.where(cols)[0][[0, -1]]
+
+    # Calculate padding
+    height, width = mask_np.shape[:2]
+    x_pad = int((x_max - x_min) * padding_percent / 100)
+    y_pad = int((y_max - y_min) * padding_percent / 100)
+
+    # Apply padding without going over the edge
+    x_min = max(x_min - x_pad, 0)
+    y_min = max(y_min - y_pad, 0)
+    x_max = min(x_max + x_pad, width - 1)
+    y_max = min(y_max + y_pad, height - 1)
+
+    return x_min, y_min, x_max, y_max
+
+def add_padding_and_display(image, box, padding_ratio=0.1):
+    """
+    Adds a specified percentage of padding to the bounding box, crops the image to this padded box,
+    and displays the cropped image. Ensures padding does not extend beyond image bounds.
+
+    :param image: The image as a PIL Image or numpy array.
+    :param box: The bounding box as a tuple (x_min, y_min, x_max, y_max).
+    :param padding_ratio: The ratio of padding to add to each side of the box (default is 10% or 0.1).
+    
+    :return: The cropped image as a PIL Image.
+    """
+    # Determine image dimensions
+    if isinstance(image, Image.Image):
+        width, height = image.size
+    elif isinstance(image, np.ndarray):
+        height, width, _ = image.shape
+        image = Image.fromarray(image)
+    else:
+        raise ValueError("Image must be a PIL Image or numpy array.")
+
+    # Unpack the bounding box and calculate padding
+    x_min, y_min, x_max, y_max = box
+    pad_width = (x_max - x_min) * padding_ratio
+    pad_height = (y_max - y_min) * padding_ratio
+
+    # Apply padding, ensuring coordinates remain within image bounds
+    x_min_padded = max(0, int(x_min - pad_width))
+    y_min_padded = max(0, int(y_min - pad_height))
+    x_max_padded = min(width, int(x_max + pad_width))
+    y_max_padded = min(height, int(y_max + pad_height))
+
+    # Crop and display the image
+    cropped_image = image.crop((x_min_padded, y_min_padded, x_max_padded, y_max_padded))
+    
+    # Convert to base64
+    buffered = BytesIO()
+    # Save as temp file
+    cropped_image.save("cropped_image.jpg")
+    cropped_image.save(buffered, format="JPEG")
+    cropped_image = base64.b64encode(buffered.getvalue())
+    cropped_image = cropped_image.decode("utf-8")
+    
+    
+    return cropped_image
 
 
 def segment_point(base64_image: str, point_coords: List):
@@ -45,7 +114,7 @@ def segment_point(base64_image: str, point_coords: List):
     predictor.set_image(image_np)
     input_label = np.array([1])
 
-    masks, scores, _ = predictor.predict(
+    masks, scores, box = predictor.predict(
         point_coords=point_coords,
         point_labels=input_label,
         multimask_output=True,
@@ -57,7 +126,6 @@ def segment_point(base64_image: str, point_coords: List):
         if score > best_score:
             best_mask = mask
             best_score = score
-    # Resize best_mask to be 1/2 the size of the original image
     best_mask = np.uint8(best_mask * 255)
     # Convert best mask to image then base64
     best_mask = Image.fromarray(best_mask)
@@ -65,7 +133,9 @@ def segment_point(base64_image: str, point_coords: List):
     best_mask.save(buffered, format="JPEG")
     best_mask = base64.b64encode(buffered.getvalue())
     best_mask = best_mask.decode("utf-8")
-    return best_mask, best_score
+    
+    image = add_padding_and_display(image_np, box)
+    return best_mask, best_score, image
 
 
 def segment_text(base64_image, text_prompt):
@@ -100,5 +170,7 @@ def segment_text(base64_image, text_prompt):
 
     # Convert box tensor to list
     box = box.tolist()
+    
+    image = add_padding_and_display(image_np, boxes[0])
 
-    return mask, box
+    return mask, box, image

@@ -1,13 +1,15 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+import traceback
+import uuid
 from typing import Dict, Union
 from dotenv import load_dotenv
-
 load_dotenv()
 
 from segment_demo import segment_point, segment_text
 from audio_utils import generate_stream_input, base64_to_text
 from tools_agent import process_agent
+from visual_tools_agent import process_visual_agent
 
 
 class ConnectionManager:
@@ -59,6 +61,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
         return
 
     await manager.connect(websocket, client_id)
+
+    async def update_callback(msg):
+        await manager.send_personal_message({"update": msg}, websocket)
+
     try:
         while True:
             data = await websocket.receive_json()
@@ -66,12 +72,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
             try:
                 match event:
                     case "segment_point":
-                        mask, score = segment_point(data["image"], data["point"])
+                        mask, score, _ = segment_point(data["image"], data["point"])
                         await manager.send_personal_message(
                             {"mask": mask, "score": str(score)}, websocket
                         )
                     case "segment_text":
-                        mask, box = segment_text(data["image"], data["text"])
+                        mask, box, _ = segment_text(data["image"], data["text"])
                         await manager.send_personal_message(
                             {"mask": mask, "box": box}, websocket
                         )
@@ -83,9 +89,23 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
                         audio_stream = await process_agent(transcript)
                         async for chunk in audio_stream:
                             await manager.send_personal_bytes(chunk, websocket)
+                    case "visual_chat":
+                        transcript = await base64_to_text(data["audio"])
+                        uuid_str = str(uuid.uuid4())
+                        audio_stream = await process_visual_agent(
+                            transcript,
+                            uuid_str,
+                            data["image"],
+                            data["mode"],
+                            data["segment_data"],
+                            update_callback,
+                        )
+                        async for chunk in audio_stream:
+                            await manager.send_personal_bytes(chunk, websocket)
 
             except Exception as e:
                 print(f"Error: {e}")
+                traceback.print_exc()
                 await manager.send_personal_message({"error": str(e)}, websocket)
     except WebSocketDisconnect:
         print("Disconnecting...")
