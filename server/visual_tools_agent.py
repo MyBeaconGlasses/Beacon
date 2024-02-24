@@ -56,23 +56,27 @@ async def process_visual_agent(
     callback: Callable,
 ) -> str:
     """A helper function to process the input with the agent"""
+    if "base64" in base_64_image:
+        base_64_image = base_64_image.split(",")[1]
     cropped_image = ""
     if mode == "text":
         object_extracted = extract_object(input)
-        _, _, cropped_image = segment_text(base_64_image, object_extracted)
+        mask, _, cropped_image = segment_text(base_64_image, object_extracted)
     else:
-        _, _, cropped_image = segment_point(base_64_image, segment_data)
+        print(segment_data)
+        mask, _, cropped_image = segment_point(base_64_image, segment_data)
 
-    await callback("Image segmented")
+    await callback({"mask": mask})
 
     handler = BucketHandler(client_id, base_64_image, cropped_image)
 
-    await callback("Image uploaded")
+    await callback({"update:": "Image uploaded"})
 
     @tool
     def google_lens() -> str:
         """
-        Performs a google lens search on the current image for object detection.
+        Performs a google lens search on the current image for object detection. 
+        Use when a specific product or object is in the image.
 
         Returns: The result of the google lens search.
         """
@@ -82,6 +86,7 @@ async def process_visual_agent(
     def vision_analysis(prompt: str) -> str:
         """
         Uses the OPENAI Vision API to answer a question based on the user's image.
+        Use when the user asks a more broad question about the image.
 
         Input:
         - text: a question about the image.
@@ -100,7 +105,7 @@ async def process_visual_agent(
         ]
     )
     generator = controller.invoke(input)
-    await callback("Agent invoked")
+    await callback({"update:": "Agent invoked"})
     first_text_chunk = await generator.__anext__()
     return generate_stream_input(first_text_chunk, generator)
 

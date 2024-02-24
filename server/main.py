@@ -60,8 +60,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
 
     await manager.connect(websocket, client_id)
 
-    async def update_callback(msg):
-        await manager.send_personal_message({"update": msg}, websocket)
+    async def update_callback(data):
+        await manager.send_personal_message(data, websocket)
         
     try:
         while True:
@@ -84,7 +84,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
                         await manager.send_personal_message(
                             {"transcript": transcript}, websocket
                         )
-                        audio_stream = await process_agent(transcript, update_callback)
+                        audio_stream = await process_agent(transcript)
                         async for chunk in audio_stream:
                             await manager.send_personal_message(
                                 chunk, websocket
@@ -94,6 +94,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
                         )
                     case "visual_chat":
                         transcript = await base64_to_text(data["audio"])
+                        await manager.send_personal_message(
+                            {"transcript": transcript}, websocket
+                        )
                         uuid_str = str(uuid.uuid4())
                         audio_stream = await process_visual_agent(
                             transcript,
@@ -107,6 +110,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
                             await manager.send_personal_message(
                                 chunk, websocket
                             )
+                        await manager.send_personal_message(
+                            {"end": True}, websocket
+                        )
             except Exception as e:
                 print(f"Error: {e}")
                 traceback.print_exc()

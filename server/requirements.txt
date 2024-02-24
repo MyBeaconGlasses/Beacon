@@ -9,7 +9,6 @@ itsdangerous==2.1.2
 langchain==0.1.9
 langchain-openai==0.0.7
 langchainhub==0.1.14
-orjson==3.9.14
 pickleshare==0.7.5
 pip-chill==1.0.3
 pyaudio==0.2.14

@@ -53,13 +53,13 @@ class BucketHandler:
         blob = bucket.blob(self.client_id)
         image_data = base64.b64decode(full_image)
         blob.cache_control = 'no-cache'
-        blob.upload_from_string(image_data)
+        blob.upload_from_string(image_data, content_type="image/jpeg")
 
         # For cropped image
         blob = bucket.blob(f"{self.client_id}_cropped")
         cropped_image_data = base64.b64decode(cropped_image)
         blob.cache_control = 'no-cache'
-        blob.upload_from_string(cropped_image_data)
+        blob.upload_from_string(cropped_image_data, content_type="image/jpeg")
 
         print(f"Data uploaded to {self.client_id}.")
 
@@ -73,10 +73,12 @@ class BucketHandler:
             "engine": "google_lens",
             "url": image_url,
             "api_key": os.getenv("SERPAPI_API_KEY"),
-        }
+        } 
 
         search = GoogleSearch(params)
         results = search.get_dict()
+        if "visual_matches" not in results:
+            return "No visual matches found."
         visual_matches = results["visual_matches"]
         titles = [match["title"] for match in visual_matches if "title" in match]
         res = identify_object(titles)

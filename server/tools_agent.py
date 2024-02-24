@@ -5,17 +5,14 @@ from tools import process_google_agent, process_weather_agent, process_yelp_agen
 from agents import Controller
 from audio_utils import generate_stream_input, stream_output
 import asyncio
-from typing import Callable
 
 
-async def process_agent(input: str, callback: Callable) -> str:
+async def process_agent(input: str) -> str:
     """A helper function to process the input with the agent"""
     controller = Controller(
         [process_google_agent, process_weather_agent, process_yelp_agent]
     )
-    await callback("Starting agent")
     generator = controller.invoke(input)
-    await callback("Agent finished")
     first_text_chunk = await generator.__anext__()
     return generate_stream_input(first_text_chunk, generator)
 
