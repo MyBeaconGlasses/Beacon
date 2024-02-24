@@ -5,7 +5,7 @@ import Image from "next/image";
 
 const Hero = () => {
   return (
-    <div className="text-white w-full flex justify-center items-center py-[16rem]">
+    <div id="home" className="text-white w-full flex justify-center items-center py-[16rem]">
       <Image
         src={Aurora}
         alt="Background image"

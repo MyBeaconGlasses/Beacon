@@ -4,7 +4,7 @@ import Glasses from "../assets/images/glasses.png";
 
 const Solution = () => {
   return (
-    <div className="text-white flex flex-col lg:flex-row justify-between items-center lg:space-x-[6rem] space-y-[6rem] lg:space-y-0 w-full py-[16rem] md:px-[4rem] px-[1rem] max-w-[1200px] mt-[1rem]">
+    <div id="solution" className="text-white flex flex-col lg:flex-row justify-between items-center lg:space-x-[6rem] space-y-[6rem] lg:space-y-0 w-full py-[16rem] md:px-[4rem] px-[1rem] max-w-[1200px] mt-[1rem]">
       <div>
         <div className="inline font-bold bg-gradient-to-r from-[#6497E3] via-[#976FEB] to-[#E86FC6] text-transparent bg-clip-text">
           SOLUTION
