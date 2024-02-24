@@ -4,10 +4,10 @@ from typing import Dict, Union
 from dotenv import load_dotenv
 
 load_dotenv()
-import json
 
 from segment_demo import segment_point, segment_text
 from audio_utils import generate_stream_input, base64_to_text
+from tools_agent import process_agent
 
 
 class ConnectionManager:
@@ -23,6 +23,9 @@ class ConnectionManager:
 
     async def send_personal_message(self, data: dict, websocket: WebSocket):
         await websocket.send_json(data)
+
+    async def send_personal_bytes(self, data: bytes, websocket: WebSocket):
+        await websocket.send_bytes(data)
 
     async def broadcast(self, message: str):
         for connection in self.active_connections.values():
@@ -77,6 +80,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] =
                         await manager.send_personal_message(
                             {"transcript": transcript}, websocket
                         )
+                        audio_stream = await process_agent(transcript)
+                        async for chunk in audio_stream:
+                            await manager.send_personal_bytes(chunk, websocket)
+
             except Exception as e:
                 print(f"Error: {e}")
                 await manager.send_personal_message({"error": str(e)}, websocket)
