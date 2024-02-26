@@ -1,6 +1,5 @@
 # MyBeacon
-###GDSC 2024
-####The OS for everything around you
+#### The OS for everything around you
 ### Try it out!
 [Web demo](https://www.mybeacon.tech/)
 
