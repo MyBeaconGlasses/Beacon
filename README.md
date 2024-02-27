@@ -1,8 +1,12 @@
 <a name="mybeacon"></a> 
 
 # MyBeacon
-[Demo Link](https://www.mybeacon.tech/)
-[Demo Video](https://youtu.be/VnC7osXl1UQ)
+<a href="https://www.mybeacon.tech/" style="display: inline-block; background-color: rgba(84, 84, 84, 0.18); padding: 0.5rem 1rem; max-width: 360px; box-shadow: inset 0px 2px 4px 0 rgba(223, 223, 223, 0.17); border-radius: 16px; text-align: center; text-decoration: none; color: inherit;">
+Demo Link
+</a> <a href="https://youtu.be/VnC7osXl1UQ" style="display: inline-block; background-color: rgba(84, 84, 84, 0.18); padding: 0.5rem 1rem; max-width: 360px; box-shadow: inset 0px 2px 4px 0 rgba(223, 223, 223, 0.17); border-radius: 16px; text-align: center; text-decoration: none; color: inherit;">
+Demo Video
+</a>
+
 
 <a name="overview"></a>
 
@@ -58,7 +62,7 @@ MyBeacon delivers smart glasses, an affordable device designed with accessibilit
 
 #### Hardware
 - Raspberry Pi 4B as our microcontroller of choice.
-- Adafruit Camera 3 Wide captures user's field of view.
+- Adafruit Camera 3 Wide captures user's field of view for image segmentation.
 - User voice command input received through Adafruit USB Microphone.
 - Device responses played through SunFounder Raspberry Pi Speaker and Amplifier Modules.
 
@@ -77,10 +81,7 @@ MyBeacon delivers smart glasses, an affordable device designed with accessibilit
 
 <a name="what-we-learned"></a>
 
-## What We Learned
-
-Throughout the development of MyBeacon smart glasses, our team learned:
-- 
+## What We learned
 - 
 - The challenges of working and communicating with each other remotely
 
