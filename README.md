@@ -43,14 +43,16 @@ MyBeacon delivers smart glasses, an affordable device designed with accessibilit
 
 ## Inspiration
 
-insert paragraph text here
+Our project sprang from a simple idea: to make technology accessible to everyone, especially those challenged by physical and sensory limitations. Traditional tech interfaces like keyboards and screens often put these individuals at a disadvantage. 
+ Our mission is to design solutions that overcome these obstacles, ensuring that technology is inclusive and accessible to everyone, regardless of their physical abilities.
 
 <a name="goals"></a>
 
 ## Goals
-- Provide real-time information on the go as requested by the user through voice command.
-- Enhance accessibility to technology for individuals facing physical and sensory challenges
-- 
+- Provide real-time information on the go as requested by the user through voice command
+- Enhance accessibility to technology for individuals facing physical, sensory, and technological challenges
+- Allow people to navigate language barriers
+- Be seamlessly compatible with new features and capabilities
 
 <a name="built-with"></a>
 
@@ -90,20 +92,32 @@ insert paragraph text here
 <a name="what-we-learned"></a>
 
 ## What We learned
+
 Throughout the development of MyBeacon smart glasses, our team learned:
 
-- 
-- The challenges of working and communicating with each other remotely
+- The challenges of implementing complex programs while keeping hardware limitations in mind
+- The value of user feedback at every prototyping stage
+- The importance of designing PCBs and 3D models with precise matching measurements 
 
 <a name="whats-next"></a>
 
 ## What's Next
-- Conduct trials with people who stand to benefit the most from MyBeacon, such as immigrants and individuals with limited mobility and/or sight.
-- 
+- Implement more experts, broadening the range of functions offered.
+- Conduct more trials with people who stand to benefit the most from MyBeacon, such as immigrants and individuals with limited mobility and/or sight.
 
 <a name="how-to-run"></a>
 
 ## How to run
 
+1. Clone the repository
+2. Run Frontend
+    1. `cd website`
+    2. `npm install`
+    3. `npm start`
 
+3. Run Backend
+    1. `cd server`
+    2. `npm install`
+    3. `npm start`
 
+Some backend links and environmental variables will be required; please contact us for more information.
