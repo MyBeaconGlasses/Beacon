@@ -19,8 +19,8 @@ MyBeacon delivers smart glasses, an affordable device designed with accessibilit
     - [Inspiration](#inspiration)
     - [Goals](#goals)
     - [Built With](#built-with)
-        - [Hardware](#hardware)
         - [Software](#software)
+        - [Hardware](#hardware)
     - [Challenges](#challenges)
     - [Accomplishments](#accomplishments)
     - [What we Learned](#what-we-learned)
@@ -33,16 +33,16 @@ MyBeacon delivers smart glasses, an affordable device designed with accessibilit
 ## <a name="goals"></a>Goals
 
 ## <a name="built-with"></a>Built With
+
+#### <a name="software"></a>Software
+- "Mixture of experts" system using multiple specialized LLMs
+- Web Demo frontend UI built with Next.js and Tailwind CSS.
+
 #### <a name="hardware"></a>Hardware
-- Raspberry Pi 4B.
+- Raspberry Pi 4B as our microcontroller of choice.
 - Adafruit Camera 3 Wide captures user's field of view.
 - User voice command input received through Adafruit USB Microphone.
 - Device responses played through SunFounder Raspberry Pi Speaker and Amplifier Modules.
-
-#### <a name="software"></a>Software
-- 
-- Web Demo frontend UI built with Next.js and Tailwind CSS.
-- 
 
 ## <a name="challenges"></a>Challenges
 - 
@@ -53,7 +53,7 @@ MyBeacon delivers smart glasses, an affordable device designed with accessibilit
 2. 
 3. 
 
-## <a name="what-we-learned"></a>What We Learned
+## <a name="what-we-learned"></a>What We Learned  
 Throughout the development of MyBeacon smart glasses, our team learned:
 - 
 - 
@@ -62,7 +62,7 @@ Throughout the development of MyBeacon smart glasses, our team learned:
 
 
 ## <a name="whats-next"></a>What's Next
-- Conduct trials with those who stand to benefit the most from MyBeacon, such as immigrants and individuals with limited mobility and/or sight.
+- Conduct trials with people who stand to benefit the most from MyBeacon, such as immigrants and individuals with limited mobility and/or sight.
 - 
 
 ## <a name="how-to-run"></a>How to run
