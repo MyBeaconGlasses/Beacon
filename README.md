@@ -77,7 +77,7 @@ MyBeacon delivers smart glasses, an affordable device designed with accessibilit
 
 <a name="what-we-learned"></a>
 
-## What We Learned  
+## What We Learned
 
 Throughout the development of MyBeacon smart glasses, our team learned:
 - 
