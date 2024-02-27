@@ -1,12 +1,10 @@
 <a name="mybeacon"></a> 
 
 # MyBeacon
-<a href="https://www.mybeacon.tech/" style="display: inline-block; background-color: rgba(84, 84, 84, 0.18); padding: 0.5rem 1rem; max-width: 360px; box-shadow: inset 0px 2px 4px 0 rgba(223, 223, 223, 0.17); border-radius: 16px; text-align: center; text-decoration: none; color: inherit;">
-Web Demo Link
-</a>
-<a href="https://youtu.be/VnC7osXl1UQ" style="display: inline-block; background-color: rgba(84, 84, 84, 0.18); padding: 0.5rem 1rem; max-width: 360px; box-shadow: inset 0px 2px 4px 0 rgba(223, 223, 223, 0.17); border-radius: 16px; text-align: center; text-decoration: none; color: inherit;">
-Demo Video Link
-</a>
+
+[Web Demo Link](https://www.mybeacon.tech/)
+
+[Demo Video Link](https://youtu.be/VnC7osXl1UQ)
 
 
 <a name="overview"></a>
