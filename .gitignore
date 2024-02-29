@@ -3,3 +3,5 @@
 __pycache__
 .venv
 *-service-key.json
+.venv
+gcp-service-key.json

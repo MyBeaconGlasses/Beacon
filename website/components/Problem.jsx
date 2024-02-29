@@ -1,6 +1,6 @@
 const Problem = () => {
   return (
-    <div className="text-white text-center w-full flex flex-col justify-center items-center py-[16rem] md:px-[4rem] px-[1rem] max-w-[1200px] mt-[1rem]">
+    <div id="about" className="text-white text-center w-full flex flex-col justify-center items-center py-[16rem] md:px-[4rem] px-[1rem] max-w-[1200px] mt-[1rem]">
       <div className="text-[36px] font-bold">
         The Vision Gap in Wearable Tech
       </div>
