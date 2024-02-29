@@ -50,7 +50,7 @@ const featureList = [
 
 const Features = () => {
   return (
-    <div className="relative w-full flex justify-center py-[16rem] text-white md:px-[4rem]">
+    <div id="features" className="relative w-full flex justify-center py-[16rem] text-white md:px-[4rem]">
       <Image
         src={Aurora}
         alt="Background image"
