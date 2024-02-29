@@ -1,1 +1,5 @@
+.env
+.venv
+gcp-service-key.json
 *.pth
+
