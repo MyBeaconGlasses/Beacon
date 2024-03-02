@@ -29,9 +29,7 @@ const AudioRecorder = () => {
   const audioQueueRef = useRef([])
 
   useEffect(() => {
-    ws.current = new WebSocket(
-      'wss://beacon-api-lr3j2feevq-uc.a.run.app/ws?client_id=123',
-    )
+    ws.current = new WebSocket('ws://localhost:8000/ws?client_id=123')
 
     ws.current.onopen = () => console.log('WebSocket Connected')
     ws.current.onerror = (error) => console.log('WebSocket Error:', error)
