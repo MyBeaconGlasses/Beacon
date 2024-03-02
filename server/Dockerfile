@@ -31,10 +31,11 @@ RUN useradd -m myuser
 USER myuser
 
 # Make port 8000 available to the world outside this container
-EXPOSE 8080
+EXPOSE 8000
 
 # Define environment variable for Uvicorn
 ENV UVICORN_HOST=0.0.0.0
-ENV UVICORN_PORT=8080
+ENV UVICORN_PORT=8000
 
-CMD ["gunicorn", "main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8080", "--timeout", "300"]
+# Start Uvicorn on port 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
