@@ -1,6 +1,6 @@
 *.pth
 *.env
-__pycache__
+*__pycache__
 .venv
 *-service-key.json
 .venv
