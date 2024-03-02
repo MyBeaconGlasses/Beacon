@@ -89,9 +89,7 @@ const Gallery = () => {
 
   useEffect(() => {
     // Establish the WebSocket connection in the useEffect hook
-    ws.current = new WebSocket(
-      'wss://beacon-service-lr3j2feevq-uc.a.run.app/ws?client_id=123',
-    )
+    ws.current = new WebSocket('wss://api.mybeacon.tech/ws?client_id=123')
 
     ws.current.onopen = () => console.log('WebSocket Connected')
     ws.current.onerror = (error) => console.log('WebSocket Error:', error)

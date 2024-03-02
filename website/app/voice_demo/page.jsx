@@ -22,14 +22,14 @@ const AudioRecorder = () => {
   const mediaRecorderRef = useRef(null)
   const audioChunksRef = useRef([])
   const ws = useRef(null) // Initialize ws ref to null for WebSocket
-  const audioContext = useRef(
-    new (window.AudioContext || window.webkitAudioContext)(),
-  )
+  const audioContext = useRef(null)
 
   const audioQueueRef = useRef([])
 
   useEffect(() => {
-    ws.current = new WebSocket('ws://localhost:8000/ws?client_id=123')
+    audioContext.current = new (window.AudioContext ||
+      window.webkitAudioContext)()
+    ws.current = new WebSocket('wss://api.mybeacon.tech/ws?client_id=123')
 
     ws.current.onopen = () => console.log('WebSocket Connected')
     ws.current.onerror = (error) => console.log('WebSocket Error:', error)
