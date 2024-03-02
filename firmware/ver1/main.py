@@ -9,6 +9,7 @@ import asyncio
 import json
 import cv2
 import queue
+import threading
 from picamera2 import Picamera2
 
 # mpv
@@ -17,7 +18,7 @@ import subprocess
 
 load_dotenv()
 
-uri = "ws://localhost:8000"
+uri = "wss://api.mybeacon.tech/ws?client_id=1234"
 
 def is_installed(lib_name):
     lib = shutil.which(lib_name)
@@ -77,7 +78,7 @@ def capture_image_to_base64():
     # Stop the camera
     picamera2.stop()
 
-    return encoded_string
+    return base64_image_str
 
 
 def get_levels(data, long_term_noise_level, current_noise_level):
