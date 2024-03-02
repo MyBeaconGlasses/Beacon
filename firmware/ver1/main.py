@@ -9,7 +9,7 @@ import asyncio
 import json
 import cv2
 import queue
-import threading
+from picamera2 import Picamera2
 
 # mpv
 import shutil
@@ -50,29 +50,32 @@ def play_audio_stream(audio_queue):
         p.terminate()
 
 def capture_image_to_base64():
-    # Initialize the camera
-    cap = cv2.VideoCapture(0)  # 0 is the default camera
+    # Initialize Picamera2
+    picamera2 = Picamera2()
 
-    # Check if the camera opened successfully
-    if not cap.isOpened():
-        print("Error: Could not open camera.")
-        return None
+    # Configure the camera
+    config = picamera2.create_preview_configuration()
+    picamera2.configure(config)
 
-    # Capture a single frame
-    ret, frame = cap.read()
+    # Start the camera and let it adjust to conditions
+    picamera2.start()
 
-    # Release the camera
-    cap.release()
+    # Capture an image to a NumPy array
+    image = picamera2.capture_array()
 
-    # Ensure the frame was captured successfully
-    if not ret:
-        print("Error: Failed to capture image.")
-        return None
+    # Convert the image from BGR to RGB format
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # This is the key step
 
-    # Encode the frame as a JPEG image in memory
-    _, buffer = cv2.imencode('.jpg', frame)
-    # Convert the image to a base64 string
-    encoded_string = base64.b64encode(buffer).decode()
+    # Convert the NumPy array to a JPEG in memory
+    success, encoded_image = cv2.imencode('.jpg', image_rgb)  # Use the RGB image here
+    if not success:
+        raise ValueError("Could not encode image")
+
+    # Convert the JPEG buffer to a Base64 string
+    base64_image_str = base64.b64encode(encoded_image.tobytes()).decode('utf-8')
+
+    # Stop the camera
+    picamera2.stop()
 
     return encoded_string
 

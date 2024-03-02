@@ -53,7 +53,7 @@ def read_root():
 async def websocket_endpoint(websocket: WebSocket, client_id: Union[str, None] = None):
     if client_id is None:
         client_id = websocket.query_params.get("client_id")
-
+    print("Received request")
     if client_id is None:
         await websocket.close(code=4001)
         return
