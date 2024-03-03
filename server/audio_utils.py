@@ -88,7 +88,7 @@ async def generate_stream_input(first_text_chunk, text_generator):
     EOS = json.dumps({"text": ""})
 
     with connect(
-        f"""wss://api.elevenlabs.io/v1/text-to-speech/{voice["voice_id"]}/stream-input?model_id={model["model_id"]}&optimize_streaming_latency=3""",
+        f"""wss://api.elevenlabs.io/v1/text-to-speech/{voice["voice_id"]}/stream-input?model_id={model["model_id"]}&optimize_streaming_latency=3&output_format=pcm_44100""",
         additional_headers={
             "xi-api-key": elevenlabs_api_key,
         },
