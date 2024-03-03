@@ -19,7 +19,7 @@ import subprocess
 
 from helper import play_audio_stream, capture_image_to_base64_opencv, combine_bytes_to_base64, get_levels
 
-uri = "wss://api.mybeacon.tech/ws?client_id=1234"
+uri = "ws://localhost:8000/ws?client_id=1234"
 
 async def main():
     audio_queue = queue.Queue()  # Using queue.Queue for thread-safe operations
