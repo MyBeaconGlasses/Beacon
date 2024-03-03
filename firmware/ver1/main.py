@@ -19,7 +19,7 @@ import subprocess
 
 from helper import play_audio_stream, capture_image_to_base64_opencv, combine_bytes_to_base64, get_levels
 
-uri = "ws://localhost:8000/ws?client_id=1234"
+uri = "wss://api.mybeacon.tech/ws?client_id=1234"
 
 async def main():
     audio_queue = queue.Queue()  # Using queue.Queue for thread-safe operations
@@ -92,9 +92,9 @@ async def main():
                             response = await websocket.recv()
                             response_data = json.loads(response)
                             if response_data.get('transcript'):
-                                print(response_data.get('transcript'))
+                                print(response_data.get('transcript'), flush=True)
                             if response_data.get('text'):
-                                print(response_data.get('text'), end="")
+                                print(response_data.get('text'), end="", flush=True)
                             if response_data.get('audio'):
                                 audio_chunk = response_data.get('audio')
                                 # Convert from base64 to audio_data

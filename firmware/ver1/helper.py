@@ -2,20 +2,14 @@ import numpy as np
 import shutil
 import base64
 import pyaudio
-import collections
-import websockets
-import asyncio
-import json
 import cv2
-import queue
-import threading
 import io
 import wave
+import miniaudio
 # from picamera2 import Picamera2
 
 # mpv
 import shutil
-import subprocess
 
 def is_installed(lib_name):
     lib = shutil.which(lib_name)
@@ -26,23 +20,33 @@ def is_installed(lib_name):
 def play_audio_stream(audio_queue):
     """
     Function to be run in a separate thread for playing audio chunks.
-    It takes a queue from which it will continuously read and play audio chunks.
+    It takes a queue from which it will continuously read and play MP3 audio chunks,
+    decodes them, and plays the decoded PCM audio.
     """
     p = pyaudio.PyAudio()
-    stream = p.open(format=pyaudio.paInt16,  # 16-bit PCM format
-                    channels=1,  # mono audio
-                    rate=44100,  # Adjusted to 44.1kHz sample rate for pcm_44100
-                    output=True)
+
+    # We might not know the exact format of the decoded audio in advance,
+    # but we're assuming 44100 Hz, 16-bit, mono for this example.
+    # Adjust these parameters based on the actual format of your MP3 audio.
+    stream = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True)
+
+    def decode_and_play_mp3_data(mp3_data):
+        # Decode MP3 data to PCM
+        decoded_audio = miniaudio.decode(mp3_data, nchannels=1, sample_rate=44100, output_format=miniaudio.SampleFormat.SIGNED16)
+        pcm_data = decoded_audio.samples.tobytes()
+        stream.write(pcm_data)
 
     try:
         while True:
-            chunk = audio_queue.get()  # Block until an item is available
-            if chunk is None:
+            mp3_chunk_base64 = audio_queue.get()  # Block until an item is available
+            if mp3_chunk_base64 is None:
                 break  # None is the signal to stop
-            data = base64.b64decode(chunk)
-            stream.write(data)
+            # Decode Base64 to get the MP3 binary data
+            mp3_data = base64.b64decode(mp3_chunk_base64)
+            # Decode MP3 and play
+            decode_and_play_mp3_data(mp3_data)
     finally:
-        # Ensure resources are released even if there's an error
+        # Clean up
         stream.stop_stream()
         stream.close()
         p.terminate()
