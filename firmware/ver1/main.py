@@ -11,13 +11,12 @@ import queue
 import threading
 import io
 import wave
-# from picamera2 import Picamera2
 
 # mpv
 import shutil
 import subprocess
 
-from helper import play_audio_stream, capture_image_to_base64_opencv, combine_bytes_to_base64, get_levels
+from helper import play_audio_stream, capture_image_to_base64_opencv, capture_image_to_base64, combine_bytes_to_base64, get_levels
 
 uri = "wss://api.mybeacon.tech/ws?client_id=1234"
 
@@ -69,7 +68,7 @@ async def main():
                             frames.append(data)
                             if current_noise_level < ambient_noise_level + 100:
                                 print("Stopped speaking.\n")
-                                image_base64 = capture_image_to_base64_opencv()
+                                image_base64 = capture_image_to_base64()
                                 with open("image.jpg", "wb") as f:
                                     f.write(base64.b64decode(image_base64))
                                 break  # voice activity ends
