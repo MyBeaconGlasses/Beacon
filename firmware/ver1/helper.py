@@ -39,12 +39,13 @@ def play_audio_stream(audio_queue):
     try:
         while True:
             mp3_chunk_base64 = audio_queue.get()  # Block until an item is available
-            if mp3_chunk_base64 is None:
-                break  # None is the signal to stop
             # Decode Base64 to get the MP3 binary data
             mp3_data = base64.b64decode(mp3_chunk_base64)
             # Decode MP3 and play
-            decode_and_play_mp3_data(mp3_data)
+            try:
+                decode_and_play_mp3_data(mp3_data)
+            except Exception as e:
+                print(f"Error while playing audio: {e}")
     finally:
         # Clean up
         stream.stop_stream()

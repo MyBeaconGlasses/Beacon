@@ -26,7 +26,7 @@ async def main():
     audio_thread.start()
     while True:
         try:
-            async with websockets.connect(uri) as websocket:
+            async with websockets.connect(uri, ping_timeout=None) as websocket:
                 print("Connected to server")
                 while True:
                     image_base64 = None
@@ -96,11 +96,10 @@ async def main():
                                 print(response_data.get('text'), end="", flush=True)
                             if response_data.get('audio'):
                                 audio_chunk = response_data.get('audio')
-                                # Convert from base64 to audio_data
-                                audio_queue.put(audio_chunk)
+                                if audio_chunk:
+                                    # Convert from base64 to audio_data
+                                    audio_queue.put(audio_chunk)
                             if response_data.get('end'):
-                                audio_queue.put(None)
-                                # Save the audio to a file
                                 break
                             if response_data.get('error'):
                                 print(response_data.get('error'))
