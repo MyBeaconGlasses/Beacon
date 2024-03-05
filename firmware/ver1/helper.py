@@ -116,8 +116,8 @@ def get_levels(data, long_term_noise_level, current_noise_level):
     pegel = np.abs(np.frombuffer(data, dtype=np.int16)).mean()
     long_term_noise_level = long_term_noise_level * 0.995 + pegel * (1.0 - 0.995)
     current_noise_level = current_noise_level * 0.920 + pegel * (1.0 - 0.920)
-    # print("long term: " + str(long_term_noise_level))
-    # print("current: " + str(current_noise_level))
+    print("long term: " + str(long_term_noise_level))
+    print("current: " + str(current_noise_level))
     return pegel, long_term_noise_level, current_noise_level
 
 
