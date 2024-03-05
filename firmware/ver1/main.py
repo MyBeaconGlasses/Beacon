@@ -52,6 +52,13 @@ async def main():
                             data, long_term_noise_level, current_noise_level
                         )
 
+                        if voice_activity_detected:
+                            frames.append(data)
+                            if current_noise_level < ambient_noise_level + 100:
+                                print("Stopped speaking.\n")
+                                image_base64 = capture_image_to_base64()
+                                break  # voice activity ends
+
                         if (
                             not voice_activity_detected
                             and current_noise_level > long_term_noise_level + 3000
@@ -61,13 +68,7 @@ async def main():
                             ambient_noise_level = long_term_noise_level
                             frames.extend(list(audio_buffer))
                             
-                        if voice_activity_detected:
-                            frames.append(data)
-                            if current_noise_level < ambient_noise_level + 100:
-                                print("Stopped speaking.\n")
-                                image_base64 = capture_image_to_base64()
-                                break  # voice activity ends
-
+                      
                         
                     stream.stop_stream(), stream.close(), audio.terminate()
                     audio_data = b"".join(frames)
