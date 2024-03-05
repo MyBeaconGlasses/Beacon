@@ -57,7 +57,7 @@ async def main():
 
                         if (
                             not voice_activity_detected
-                            and current_noise_level > long_term_noise_level + 400
+                            and current_noise_level > long_term_noise_level + 300
                         ):
                             print("Listening.\n")                            
                             voice_activity_detected = True
