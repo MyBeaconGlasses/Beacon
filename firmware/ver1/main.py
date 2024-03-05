@@ -51,13 +51,10 @@ async def main():
                         pegel, long_term_noise_level, current_noise_level = get_levels(
                             data, long_term_noise_level, current_noise_level
                         )
-                        if (abs(long_term_noise_level-current_noise_level) > 1000):
-                            long_term_noise_level = current_noise_level
-                        audio_buffer.append(data)
 
                         if (
                             not voice_activity_detected
-                            and current_noise_level > long_term_noise_level + 300
+                            and current_noise_level > long_term_noise_level + 3000
                         ):
                             print("Listening.\n")                            
                             voice_activity_detected = True
@@ -66,7 +63,7 @@ async def main():
                             
                         if voice_activity_detected:
                             frames.append(data)
-                            if current_noise_level < ambient_noise_level + 100:
+                            if current_noise_level < ambient_noise_level + 1000:
                                 print("Stopped speaking.\n")
                                 image_base64 = capture_image_to_base64()
                                 break  # voice activity ends
