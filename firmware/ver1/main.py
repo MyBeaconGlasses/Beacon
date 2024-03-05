@@ -51,7 +51,7 @@ async def main():
                         pegel, long_term_noise_level, current_noise_level = get_levels(
                             data, long_term_noise_level, current_noise_level
                         )
-                        if (long_term_noise_level < 5):
+                        if (abs(long_term_noise_level-current_noise_level) > 1000):
                             long_term_noise_level = current_noise_level
                         audio_buffer.append(data)
 
