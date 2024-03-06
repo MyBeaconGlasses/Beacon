@@ -81,16 +81,45 @@ def capture_image_to_base64_opencv():
     
     return base64_image_str
 
+class CameraSingleton:
+    _instance = None
+    _picamera2 = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(CameraSingleton, cls).__new__(cls)
+            # Initialize Picamera2 here to ensure it's only done once
+            cls._picamera2 = Picamera2()
+            # Configure the camera
+            config = cls._picamera2.create_preview_configuration()
+            cls._picamera2.configure(config)
+            # Start the camera and let it adjust to conditions
+            cls._picamera2.start()
+        return cls._instance
+
+    @classmethod
+    def get_camera(cls):
+        if cls._instance is None:
+            cls()
+        return cls._picamera2
+
+    @classmethod
+    def stop_camera(cls):
+        if cls._picamera2 is not None:
+            cls._picamera2.stop()
+            cls._picamera2 = None
+            cls._instance = None
+
 def capture_image_to_base64():
     # Initialize Picamera2
-    picamera2 = Picamera2()
+    picamera2 = CameraSingleton.get_camera()
 
     # Configure the camera
-    config = picamera2.create_preview_configuration()
-    picamera2.configure(config)
+    # config = picamera2.create_preview_configuration()
+    # picamera2.configure(config)
 
     # Start the camera and let it adjust to conditions
-    picamera2.start()
+    # picamera2.start()
 
     # Capture an image to a NumPy array
     image = picamera2.capture_array()
