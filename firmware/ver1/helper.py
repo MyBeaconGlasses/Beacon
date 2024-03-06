@@ -107,7 +107,7 @@ def capture_image_to_base64():
     base64_image_str = base64.b64encode(encoded_image.tobytes()).decode('utf-8')
 
     # Stop the camera
-    picamera2.stop()
+    # picamera2.stop()
 
     return base64_image_str
 
