@@ -56,7 +56,7 @@ async def main():
 
                         if voice_activity_detected:
                             frames.append(data)
-                            if current_noise_level < long_term_noise_level + 100:
+                            if current_noise_level < long_term_noise_level + 200:
                                 print("long term: " + str(long_term_noise_level))
                                 print("current: " + str(current_noise_level))
                                 print("Stopped speaking.\n")
@@ -65,7 +65,7 @@ async def main():
 
                         if (
                             not voice_activity_detected
-                            and current_noise_level > long_term_noise_level + 100
+                            and current_noise_level > long_term_noise_level + 200
                         ):
                             print("Listening.\n")                            
                             voice_activity_detected = True
