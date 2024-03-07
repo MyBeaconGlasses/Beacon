@@ -94,6 +94,7 @@ async def main():
                     stream.stop_stream(), stream.close(), audio.terminate()
                     audio_data = b"".join(frames)
                     audio_data_base64 = combine_bytes_to_base64(audio, audio_data)
+                    print(audio_data_base64)
                                       
                     jsonBody = {
                         'audio': audio_data_base64,
