@@ -84,7 +84,7 @@ async def main():
                             
                         if voice_activity_detected:
                             frames.append(data)
-                            if current_noise_level < ambient_noise_level + 50:
+                            if current_noise_level < ambient_noise_level + 100:
                                 print("Stopped speaking.\n")
                                 image_base64 = capture_image_to_base64()
                                 with open("image.jpg", "wb") as f:
