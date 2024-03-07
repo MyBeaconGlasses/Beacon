@@ -32,7 +32,7 @@ async def main():
                     image_base64 = None
                     audio = pyaudio.PyAudio()
                     stream = audio.open(
-                        rate=16000,
+                        rate=44100,
                         format=pyaudio.paInt16,
                         channels=1,
                         input=True,
