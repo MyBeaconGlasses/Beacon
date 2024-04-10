@@ -11,6 +11,8 @@ import queue
 import threading
 import io
 import wave
+import traceback
+
 
 # mpv
 import shutil
@@ -32,13 +34,13 @@ async def main():
                     image_base64 = None
                     audio = pyaudio.PyAudio()
                     stream = audio.open(
-                        rate=44100,
-                        format=pyaudio.paInt16,
+                        rate=48000,
+                        format=pyaudio.paInt32,
                         channels=1,
                         input=True,
-                        frames_per_buffer=512,
+                        frames_per_buffer=1024,
                     )
-                    audio_buffer = collections.deque(maxlen=int((44100 // 512) * 0.5))
+                    audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
                     frames, long_term_noise_level, current_noise_level, voice_activity_detected = (
                         [],
                         0.0,
@@ -47,10 +49,13 @@ async def main():
                     )
                     print("\n\nStart speaking. ", end="", flush=True)
                     while True:
-                        data = stream.read(512)
+                        data = stream.read(1024)
                         pegel, long_term_noise_level, current_noise_level = get_levels(
                             data, long_term_noise_level, current_noise_level
                         )
+
+                        # print(f"\rNoise level: {current_noise_level}")
+                        # print(f"\rLong term noise level: {long_term_noise_level}")
                         
 
                         # if voice_activity_detected:
@@ -73,7 +78,7 @@ async def main():
                         audio_buffer.append(data)
                         if (
                             not voice_activity_detected
-                            and current_noise_level > long_term_noise_level + 300
+                            and current_noise_level > long_term_noise_level + 200
                         ):
                             print("Listening.\n")
                             # Save image to file
@@ -84,9 +89,10 @@ async def main():
                             
                         if voice_activity_detected:
                             frames.append(data)
-                            if current_noise_level < ambient_noise_level + 100:
+                            if current_noise_level < ambient_noise_level + 50:
                                 print("Stopped speaking.\n")
                                 image_base64 = capture_image_to_base64()
+                                # capture_image_to_base64()
                                 with open("image.jpg", "wb") as f:
                                     f.write(base64.b64decode(image_base64))
                                 break  # voice activity ends  
@@ -130,6 +136,7 @@ async def main():
             await asyncio.sleep(5)
         except Exception as e:
             print(f"An error occurred: {e}")
+            print(traceback.format_exc())
             break
     print("Exiting...")
     return ""
