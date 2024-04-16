@@ -40,7 +40,6 @@ async def main():
         input_device_index=1,
                     frames_per_buffer=1024,
                 )
-                audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
                 frames, long_term_noise_level, current_noise_level, voice_activity_detected = (
                     [],
                     0.0,
@@ -68,8 +67,8 @@ async def main():
                         frames_per_buffer=1024,
                     )
                     audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
+                    voice_activity_detected = False
                     while True:
-                        
                         data = stream.read(1024)
                         pegel, long_term_noise_level, current_noise_level = get_levels(
                             data, long_term_noise_level, current_noise_level
