@@ -38,6 +38,7 @@ async def main():
                         format=pyaudio.paInt32,
                         channels=1,
                         input=True,
+			input_device_index=0,
                         frames_per_buffer=1024,
                     )
                     audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
