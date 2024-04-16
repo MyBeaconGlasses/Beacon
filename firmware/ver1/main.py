@@ -79,7 +79,7 @@ async def main():
                         audio_buffer.append(data)
                         if (
                             not voice_activity_detected
-                            and current_noise_level > long_term_noise_level + 200
+                            and current_noise_level > long_term_noise_level + 300
                         ):
                             print("Listening.\n")
                             # Save image to file
@@ -90,7 +90,7 @@ async def main():
                             
                         if voice_activity_detected:
                             frames.append(data)
-                            if current_noise_level < ambient_noise_level + 50:
+                            if current_noise_level < ambient_noise_level + 100:
                                 print("Stopped speaking.\n")
                                 image_base64 = capture_image_to_base64()
                                 # capture_image_to_base64()
