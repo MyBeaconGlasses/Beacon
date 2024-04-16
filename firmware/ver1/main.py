@@ -34,13 +34,13 @@ async def main():
                     image_base64 = None
                     audio = pyaudio.PyAudio()
                     stream = audio.open(
-                        rate=44100,
-                        format=pyaudio.paInt16,
+                        rate=48000,
+                        format=pyaudio.paInt32,
                         channels=1,
                         input=True,
                         frames_per_buffer=1024,
                     )
-                    audio_buffer = collections.deque(maxlen=int((44100 // 1024) * 0.5))
+                    audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
                     frames, long_term_noise_level, current_noise_level, voice_activity_detected = (
                         [],
                         0.0,

@@ -156,8 +156,8 @@ def combine_bytes_to_base64(audio, audio_data):
     # Initialize a wave file writer
     with wave.open(wav_buffer, 'wb') as wav_file:
         wav_file.setnchannels(1)  # Mono
-        wav_file.setsampwidth(audio.get_sample_size(pyaudio.paInt16))  # Sample width in bytes
-        wav_file.setframerate(44100)  # Sample rate
+        wav_file.setsampwidth(audio.get_sample_size(pyaudio.paInt32))  # Sample width in bytes
+        wav_file.setframerate(48000)  # Sample rate
         wav_file.writeframes(audio_data)  # Write the raw audio data
 
     # Get the WAV file data from the buffer
