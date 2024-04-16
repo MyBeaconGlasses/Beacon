@@ -81,7 +81,7 @@ async def main():
                         audio_buffer.append(data)
                         if (
                             not voice_activity_detected
-                            and current_noise_level > long_term_noise_level * 1.2
+                            and current_noise_level > long_term_noise_level * 1.5
                         ):
                             print("Listening.\n")
                             # Save image to file
