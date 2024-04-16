@@ -63,7 +63,7 @@ async def main():
                         format=pyaudio.paInt32,
                         channels=1,
                         input=True,
-            input_device_index=1,
+                        input_device_index=1,
                         frames_per_buffer=1024,
                     )
                     audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
@@ -81,7 +81,7 @@ async def main():
                         audio_buffer.append(data)
                         if (
                             not voice_activity_detected
-                            and current_noise_level > long_term_noise_level * 1.5
+                            and current_noise_level > long_term_noise_level * 1.3
                         ):
                             print("Listening.\n")
                             # Save image to file
