@@ -91,7 +91,7 @@ async def main():
                             frames.append(data)
                             if current_noise_level < ambient_noise_level + 50:
                                 print("Stopped speaking.\n")
-                                image_base64 = capture_image_to_base64_opencv()
+                                image_base64 = capture_image_to_base64()
                                 # capture_image_to_base64()
                                 with open("image.jpg", "wb") as f:
                                     f.write(base64.b64decode(image_base64))
