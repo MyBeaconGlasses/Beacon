@@ -82,10 +82,10 @@ async def main():
                         if voice_activity_detected:
                             frames.append(data)
                             if current_noise_level < long_term_noise_level * 1.5:
-                                image_base64 = capture_image_to_base64_opencv()
+                                # image_base64 = capture_image_to_base64_opencv()
                                 # capture_image_to_base64()
-                                with open("image.jpg", "wb") as f:
-                                    f.write(base64.b64decode(image_base64))
+                                # with open("image.jpg", "wb") as f:
+                                    # f.write(base64.b64decode(image_base64))
                                 break  # voice activity ends  
                         
                     stream.stop_stream(), stream.close(), audio.terminate()
