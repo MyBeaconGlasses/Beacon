@@ -68,12 +68,6 @@ async def main():
                         frames_per_buffer=1024,
                     )
                     audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
-                    frames, long_term_noise_level, current_noise_level, voice_activity_detected = (
-                        [],
-                        0.0,
-                        0.0,
-                        False,
-                    )
                     while True:
                         
                         data = stream.read(1024)
