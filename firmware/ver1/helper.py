@@ -34,12 +34,6 @@ def play_audio_stream(audio_queue):
         # Decode MP3 data to PCM
         decoded_audio = miniaudio.decode(mp3_data, nchannels=1, sample_rate=44100, output_format=miniaudio.SampleFormat.SIGNED16)
         pcm_data = np.frombuffer(decoded_audio.samples.tobytes(), dtype=np.int16)
-        
-        # Normalize the PCM data
-        if np.max(np.abs(pcm_data)) > 0:  # Avoid division by zero
-            normalization_factor = 32767 / np.max(np.abs(pcm_data))
-            pcm_data = (pcm_data * normalization_factor).astype(np.int16)
-
         stream.write(pcm_data.tobytes())
 
     try:
@@ -150,7 +144,7 @@ def capture_image_to_base64():
 def get_levels(data, long_term_noise_level, current_noise_level):
     pegel = np.abs(np.frombuffer(data, dtype=np.int32)).mean()
     current_noise_level = current_noise_level * 0.920 + pegel * (1.0 - 0.920)
-    if long_term_noise_level < 100:
+    if long_term_noise_level < 0.9*current_noise_level:
         long_term_noise_level = current_noise_level
     else:
         long_term_noise_level = long_term_noise_level * 0.995 + pegel * (1.0 - 0.995)

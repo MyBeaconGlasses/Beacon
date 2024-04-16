@@ -1,3 +1,4 @@
+
 import numpy as np
 import shutil
 import base64
@@ -21,6 +22,7 @@ import subprocess
 from helper import play_audio_stream, capture_image_to_base64_opencv, capture_image_to_base64, combine_bytes_to_base64, get_levels
 
 uri = "wss://api.mybeacon.tech/ws?client_id=1234"
+buffer_size = 2048
 
 async def main():
     audio_queue = queue.Queue()  # Using queue.Queue for thread-safe operations
@@ -38,7 +40,7 @@ async def main():
                     channels=1,
                     input=True,
         input_device_index=1,
-                    frames_per_buffer=1024,
+                    frames_per_buffer=buffer_size,
                 )
                 frames, long_term_noise_level, current_noise_level, voice_activity_detected = (
                     [],
@@ -49,14 +51,14 @@ async def main():
                 
                 # Adaptation period
                 print("\nAdapting to background noise...")
-                for _ in range(int(48000 / 1024 * 5)):  # 5 seconds of adaptation
-                    data = stream.read(1024)
+                for _ in range(int(48000 / buffer_size * 2)):  # 2 seconds of adaptation
+                    data = stream.read(buffer_size)
                     _, long_term_noise_level, current_noise_level = get_levels(
                         data, long_term_noise_level, current_noise_level
                     )
+                long_term_noise_level = current_noise_level
                 stream.stop_stream(), stream.close(), audio.terminate()
                 while True:
-                    print("\n\nStart speaking. ", end="", flush=True)
                     audio = pyaudio.PyAudio()
                     stream = audio.open(
                         rate=48000,
@@ -64,39 +66,53 @@ async def main():
                         channels=1,
                         input=True,
                         input_device_index=1,
-                        frames_per_buffer=1024,
+                        frames_per_buffer=buffer_size,
                     )
-                    audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
+                    audio_buffer = collections.deque(maxlen=int((48000 // buffer_size) * 0.5))
                     voice_activity_detected = False
+                    below_threshold_count = 0
+                    frames = []
+                    print("Everything reset", end="", flush=True)
+                    print("\n\nStart speaking. ", end="", flush=True)
+                    
                     while True:
-                        data = stream.read(1024)
+                        data = stream.read(buffer_size)
                         pegel, long_term_noise_level, current_noise_level = get_levels(
                             data, long_term_noise_level, current_noise_level
                         )
 
-                        # print(f"\rNoise level: {current_noise_level}")
-                        # print(f"\rLong term noise level: {long_term_noise_level}")
+                        print(f"\rNoise level: {current_noise_level} | Long term noise level: {long_term_noise_level}", end="", flush=True)
+                        audio_buffer.append(data)
                         
                             
-                        audio_buffer.append(data)
                         if (
                             not voice_activity_detected
-                            and current_noise_level > long_term_noise_level * 1.3
+                            and current_noise_level > long_term_noise_level * 1.03
                         ):
-                            print("Listening.\n")
+                            print("\nListening.\n")
                             # Save image to file
                             
                             voice_activity_detected = True
                             frames.extend(list(audio_buffer))
-                            
+                        
                         if voice_activity_detected:
                             frames.append(data)
-                            if current_noise_level < long_term_noise_level * 1.05:
+                            if current_noise_level < long_term_noise_level:
                                 # image_base64 = capture_image_to_base64_opencv()
                                 # capture_image_to_base64()
                                 # with open("image.jpg", "wb") as f:
                                     # f.write(base64.b64decode(image_base64))
-                                break  # voice activity ends  
+                                
+                                if below_threshold_count >= 20:
+                                    print("Stopped listening.\n")
+                                    break
+                                else:
+                                    print('Counting down...' + str(20 - below_threshold_count), end="", flush=True)
+                                    below_threshold_count += 1
+                            else:
+                                below_threshold_count = 0
+                            
+                        
                         
                     stream.stop_stream(), stream.close(), audio.terminate()
                     audio_data = b"".join(frames)
