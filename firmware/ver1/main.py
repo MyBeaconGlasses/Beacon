@@ -58,23 +58,24 @@ async def main():
                 stream.stop_stream(), stream.close(), audio.terminate()
                 while True:
                     print("\n\nStart speaking. ", end="", flush=True)
+                    audio = pyaudio.PyAudio()
+                    stream = audio.open(
+                        rate=48000,
+                        format=pyaudio.paInt32,
+                        channels=1,
+                        input=True,
+            input_device_index=1,
+                        frames_per_buffer=1024,
+                    )
+                    audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
+                    frames, long_term_noise_level, current_noise_level, voice_activity_detected = (
+                        [],
+                        0.0,
+                        0.0,
+                        False,
+                    )
                     while True:
-                        audio = pyaudio.PyAudio()
-                        stream = audio.open(
-                            rate=48000,
-                            format=pyaudio.paInt32,
-                            channels=1,
-                            input=True,
-                input_device_index=1,
-                            frames_per_buffer=1024,
-                        )
-                        audio_buffer = collections.deque(maxlen=int((48000 // 1024) * 0.5))
-                        frames, long_term_noise_level, current_noise_level, voice_activity_detected = (
-                            [],
-                            0.0,
-                            0.0,
-                            False,
-                        )
+                        
                         data = stream.read(1024)
                         pegel, long_term_noise_level, current_noise_level = get_levels(
                             data, long_term_noise_level, current_noise_level
