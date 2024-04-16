@@ -6,7 +6,7 @@ import cv2
 import io
 import wave
 import miniaudio
-from picamera2 import Picamera2
+# from picamera2 import Picamera2
 
 # mpv
 import shutil
