@@ -86,10 +86,10 @@ async def main():
                                       
                     jsonBody = {
                         'audio': audio_data_base64,
-                        'event': 'visual_chat',
-                        'mode': 'text',
-                        'image': image_base64,
-                        'segment_data': ""
+                        'event': 'audio_chat', 
+                        # 'mode': 'text',
+                        # 'image': image_base64,
+                        # 'segment_data': ""
                     }
                     await websocket.send(json.dumps(jsonBody))
                     while True:
