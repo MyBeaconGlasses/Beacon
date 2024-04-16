@@ -48,6 +48,15 @@ async def main():
                         0.0,
                         False,
                     )
+                    
+                    # Adaptation period
+                    print("\nAdapting to background noise...")
+                    for _ in range(int(48000 / 1024 * 5)):  # 5 seconds of adaptation
+                        data = stream.read(1024)
+                        _, long_term_noise_level, current_noise_level = get_levels(
+                            data, long_term_noise_level, current_noise_level
+                        )
+                    
                     print("\n\nStart speaking. ", end="", flush=True)
                     while True:
                         data = stream.read(1024)

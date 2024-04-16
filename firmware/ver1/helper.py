@@ -33,8 +33,14 @@ def play_audio_stream(audio_queue):
     def decode_and_play_mp3_data(mp3_data):
         # Decode MP3 data to PCM
         decoded_audio = miniaudio.decode(mp3_data, nchannels=1, sample_rate=44100, output_format=miniaudio.SampleFormat.SIGNED16)
-        pcm_data = decoded_audio.samples.tobytes()
-        stream.write(pcm_data)
+        pcm_data = np.frombuffer(decoded_audio.samples.tobytes(), dtype=np.int16)
+        
+        # Normalize the PCM data
+        if np.max(np.abs(pcm_data)) > 0:  # Avoid division by zero
+            normalization_factor = 32767 / np.max(np.abs(pcm_data))
+            pcm_data = (pcm_data * normalization_factor).astype(np.int16)
+
+        stream.write(pcm_data.tobytes())
 
     try:
         while True:
