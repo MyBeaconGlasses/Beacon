@@ -215,7 +215,7 @@ const AudioRecorder = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#14102a] to-[#0e0e0e]">
       <div className="mb-8" flex flex-row items-center justify-center>
         <Select
           value={segmentation}
