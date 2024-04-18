@@ -24,3 +24,51 @@
     box-shadow: inset 0px 2px 4px 0px rgba(223, 223, 223, 0.17); /* Inner shadow with light grey color */
   border-radius: 16px; /* Rounded corners with 16px radius */
     }
+
+
+    /* Style for the dropdown container */
+.navbar-dropdown {
+  position: relative; /* Position the dropdown relative to its parent */
+}
+
+/* Style for the dropdown button */
+.navbar-dropdown-button {
+  background-color: rgba(84, 84, 84, 0.18);
+  padding: 0.5rem 1rem;
+  max-width: 360px;
+  box-shadow: inset 0px 2px 4px 0px rgba(223, 223, 223, 0.17);
+  border-radius: 16px;
+  cursor: pointer; /* Change mouse cursor on hover */
+}
+
+/* Dropdown menu container, initially hidden */
+.navbar-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: black;
+}
+
+/* Style for dropdown items */
+.navbar-dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Show the dropdown menu on hover */
+.navbar-dropdown:hover .navbar-dropdown-content {
+  display: block;
+}
+
+/* Style for hover state of dropdown items */
+.navbar-dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
