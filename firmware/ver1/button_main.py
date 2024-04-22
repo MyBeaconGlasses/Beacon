@@ -12,6 +12,7 @@ import threading
 import io
 import wave
 import traceback
+from gpiozero import Button # this uses the raspberry pi GPIO numbering rather than the physical pin numbering, for example: GPIO17 would be referred to 17 rather than 11 for pin 11
 
 # mpv
 import shutil
@@ -30,6 +31,7 @@ buffer_size = 2048
 
 
 async def main():
+    button = Button(17) # use GPIO17, or [hysical pin 11 on the raspberry pi
     audio_queue = queue.Queue()  # Using queue.Queue for thread-safe operations
     audio_thread = threading.Thread(target=play_audio_stream, args=(audio_queue,))
     audio_thread.start()
@@ -53,7 +55,7 @@ async def main():
 
                 while True:
                     # Simulate button press (replace this with actual button check)
-                    button_pressed = True  # Change this to actual button state
+                    button_pressed = button.is_pressed
 
                     if button_pressed and not recording:
                         print("Recording started.")
@@ -64,7 +66,7 @@ async def main():
                         frames.append(data)
 
                         # Simulate button release (replace this with actual button check)
-                        button_released = False  # Change this to actual button state
+                        button_released = not button_pressed
                         if button_released:
                             print("Recording stopped.")
                             recording = False
