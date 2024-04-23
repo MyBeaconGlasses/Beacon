@@ -54,8 +54,7 @@ async def main():
                 audio_buffer = collections.deque(
                     maxlen=int((16000 // buffer_size) * 0.5)
                 )
-                first = True
-
+                recorded = False
                 frames = []
                 while True:
                     data = stream.read(buffer_size)
@@ -65,12 +64,12 @@ async def main():
                     if button_pressed:
                         print("Recording started.")
                         # keep recording until released
-                        if first:
+                        if not recorded:
                             frames.extend(list(audio_buffer))
-                            first = False
+                            recorded = True
                         else:
                             frames.append(data)
-                    else:
+                    elif recorded:
                         print("Recording stopped.")
                         break
 
