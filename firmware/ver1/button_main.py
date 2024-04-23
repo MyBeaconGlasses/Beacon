@@ -51,7 +51,7 @@ async def main():
                 )
 
                 frames = []
-
+                
                 button_pressed = button.is_pressed
 
                 if button_pressed:
@@ -63,7 +63,7 @@ async def main():
 
                     print("Recording stopped.")
 
-                if len(frames) > 0:
+                if frames:
                     # Stop and close the stream
                     stream.stop_stream()
                     stream.close()
