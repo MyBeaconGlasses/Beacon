@@ -31,7 +31,7 @@ buffer_size = 2048
 
 
 async def main():
-    button = Button(17) # use GPIO17, or [hysical pin 11 on the raspberry pi
+    button = Button(2) # use GPIO2, or physical pin 3 on the raspberry pi
     audio_queue = queue.Queue()  # Using queue.Queue for thread-safe operations
     audio_thread = threading.Thread(target=play_audio_stream, args=(audio_queue,))
     audio_thread.start()
@@ -46,7 +46,7 @@ async def main():
                     format=pyaudio.paInt32,
                     channels=1,
                     input=True,
-                    input_device_index=1,
+                    input_device_index=0,
                     frames_per_buffer=buffer_size,
                 )
 
