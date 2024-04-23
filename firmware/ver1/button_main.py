@@ -12,7 +12,9 @@ import threading
 import io
 import wave
 import traceback
-from gpiozero import Button # this uses the raspberry pi GPIO numbering rather than the physical pin numbering, for example: GPIO17 would be referred to 17 rather than 11 for pin 11
+from gpiozero import (
+    Button,
+)  # this uses the raspberry pi GPIO numbering rather than the physical pin numbering, for example: GPIO17 would be referred to 17 rather than 11 for pin 11
 
 # mpv
 import shutil
@@ -31,7 +33,7 @@ buffer_size = 2048
 
 
 async def main():
-    button = Button(2) # use GPIO2, or physical pin 3 on the raspberry pi
+    button = Button(2)  # use GPIO2, or physical pin 3 on the raspberry pi
     audio_queue = queue.Queue()  # Using queue.Queue for thread-safe operations
     audio_thread = threading.Thread(target=play_audio_stream, args=(audio_queue,))
     audio_thread.start()
@@ -49,19 +51,28 @@ async def main():
                     input_device_index=1,
                     frames_per_buffer=buffer_size,
                 )
+                audio_buffer = collections.deque(
+                    maxlen=int((16000 // buffer_size) * 0.5)
+                )
+                first = True
 
                 frames = []
+                while True:
+                    data = stream.read(buffer_size)
+                    audio_buffer.append(data)
+                    button_pressed = button.is_pressed
 
-                button_pressed = button.is_pressed
-
-                if button_pressed:
-                    print("Recording started.")
-                    # keep recording until released
-                    while button_pressed:
-                        data = stream.read(buffer_size)
-                        frames.append(data)
-
-                    print("Recording stopped.")
+                    if button_pressed:
+                        print("Recording started.")
+                        # keep recording until released
+                        if first:
+                            frames.extend(list(audio_buffer))
+                            first = False
+                        else:
+                            frames.append(data)
+                    else:
+                        print("Recording stopped.")
+                        break
 
                 if len(frames) > 0:
                     # Stop and close the stream
