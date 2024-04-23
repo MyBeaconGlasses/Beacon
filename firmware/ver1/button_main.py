@@ -46,7 +46,7 @@ async def main():
                     format=pyaudio.paInt32,
                     channels=1,
                     input=True,
-                    input_device_index=0,
+                    input_device_index=1,
                     frames_per_buffer=buffer_size,
                 )
 
