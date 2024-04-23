@@ -61,9 +61,9 @@ async def main():
                         data = stream.read(buffer_size)
                         frames.append(data)
 
-                print("Recording stopped.")
+                    print("Recording stopped.")
 
-                if frames:
+                if len(frames) > 0:
                     # Stop and close the stream
                     stream.stop_stream()
                     stream.close()
