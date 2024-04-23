@@ -61,12 +61,12 @@ async def main():
                         print("Recording started.")
                         recording = True
 
-                    if recording:
-                        data = stream.read(buffer_size)
-                        frames.append(data)
+                        if recording:
+                            data = stream.read(buffer_size)
+                            frames.append(data)
 
-                        # Simulate button release (replace this with actual button check)
-                        button_released = not button_pressed
+                            # Simulate button release (replace this with actual button check)
+                            button_released = not button_pressed
                         if button_released:
                             print("Recording stopped.")
                             recording = False
@@ -80,7 +80,7 @@ async def main():
 
                     # Combine frames into a single byte stream and convert to base64
                     audio_data = b"".join(frames)
-                    audio_data_base64 = combine_bytes_to_base64(audio_data)
+                    audio_data_base64 = combine_bytes_to_base64(audio, audio_data)
 
                     json_body = {
                         "audio": audio_data_base64,
