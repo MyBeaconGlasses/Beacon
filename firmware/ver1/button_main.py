@@ -74,7 +74,7 @@ async def main():
                         print("Recording stopped.")
                         break
 
-                if len(frames) > 0:
+                if frames:
                     # Stop and close the stream
                     stream.stop_stream()
                     stream.close()
