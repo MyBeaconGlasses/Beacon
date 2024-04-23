@@ -50,27 +50,18 @@ async def main():
                     frames_per_buffer=buffer_size,
                 )
 
-                recording = False
                 frames = []
 
-                while True:
-                    # Simulate button press (replace this with actual button check)
-                    button_pressed = button.is_pressed
+                button_pressed = button.is_pressed
 
-                    if button_pressed and not recording:
-                        print("Recording started.")
-                        recording = True
+                if button_pressed:
+                    print("Recording started.")
+                    # keep recording until released
+                    while button_pressed:
+                        data = stream.read(buffer_size)
+                        frames.append(data)
 
-                        if recording:
-                            data = stream.read(buffer_size)
-                            frames.append(data)
-
-                            # Simulate button release (replace this with actual button check)
-                            button_released = not button_pressed
-                        if button_released:
-                            print("Recording stopped.")
-                            recording = False
-                            break
+                print("Recording stopped.")
 
                 if frames:
                     # Stop and close the stream
